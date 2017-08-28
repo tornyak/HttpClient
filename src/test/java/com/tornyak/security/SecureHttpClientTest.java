@@ -5,6 +5,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.fluent.Response;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.junit.Test;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -21,43 +23,43 @@ public class SecureHttpClientTest {
 
     SecureHttpClient httpClient;
 
-    public void SecureHttpClient() throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, KeyManagementException {
+    public SecureHttpClientTest() throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, KeyManagementException {
         httpClient = new SecureHttpClient();
     }
 
     @Test
     public void validCertificate() throws Exception {
-        Response resp = Request.Get("https://sha256.badssl.com/").execute();
-        assertEquals(200, resp.handleResponse(response -> response.getStatusLine()).getStatusCode());
+        HttpResponse response = httpClient.execute(new HttpGet("https://sha256.badssl.com/"));
+        assertEquals(200, response.getStatusLine().getStatusCode());
     }
 
     @Test(expected = SSLHandshakeException.class)
     public void expiredCertificate() throws Exception {
-        Request.Get("https://expired.badssl.com/").execute();
+        httpClient.execute(new HttpGet("https://expired.badssl.com/"));
     }
 
     @Test(expected = SSLPeerUnverifiedException.class)
     public void wrongHostCertificate() throws Exception {
-        Request.Get("https://wrong.host.badssl.com/").execute().returnContent();
+        httpClient.execute(new HttpGet("https://wrong.host.badssl.com/"));
     }
 
     @Test(expected = SSLHandshakeException.class)
     public void selfSignedCertificate() throws Exception {
-        Request.Get("https://self-signed.badssl.com/").execute().returnContent();
+        httpClient.execute(new HttpGet("https://self-signed.badssl.com/"));
     }
 
     @Test(expected = SSLHandshakeException.class)
     public void untrustedRootCertificate() throws Exception {
-        Request.Get("https://untrusted-root.badssl.com/").execute().returnContent();
+        httpClient.execute(new HttpGet("https://untrusted-root.badssl.com/"));
     }
 
     @Test(expected = SSLHandshakeException.class)
     public void revokedCertificate() throws Exception {
-        Request.Get("https://revoked.badssl.com/").execute().returnContent();
+        httpClient.execute(new HttpGet("https://pinning-test.badssl.com/"));
     }
 
     @Test(expected = SSLHandshakeException.class)
     public void pinningFailedCertificate() throws Exception {
-        Request.Get("https://pinning-test.badssl.com/").execute().returnContent();
+        httpClient.execute(new HttpGet("https://pinning-test.badssl.com/"));
     }
 }

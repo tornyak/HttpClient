@@ -9,6 +9,7 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.ssl.BrowserCompatHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
@@ -46,19 +47,19 @@ public class SecureHttpClient implements HttpClient {
                 .setConnectionRequestTimeout(connectionRequestTimeout)
                 .build();
 
-        SSLContext sslContext = SSLContexts
-                .custom()
-                .loadTrustMaterial(null, (chain, authType) -> {
-                    System.out.println("isTrusted: authType: " + authType);
-                    System.out.println("chain: " + Arrays.toString(chain));
-                    return false;
-                })
-                .build();
+        SSLContext sslContext = SSLContexts.createDefault();
+                //.custom()
+                //.loadTrustMaterial(null, (chain, authType) -> {
+                //    System.out.println("isTrusted: authType: " + authType);
+                //    System.out.println("chain: " + Arrays.toString(chain));
+                //    return true;
+                //})
+                //.build();
 
         SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext,
                 new String[]{"TLSv1.2"}, null, (hostname, sslSession) -> {
             System.out.println("verify hostname: " + hostname);
-            return false;
+            return BrowserCompatHostnameVerifier.INSTANCE.verify(hostname, sslSession);
         });
 
         HttpClientBuilder httpClientBuilder = HttpClients.custom()
