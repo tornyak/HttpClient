@@ -1,16 +1,10 @@
 package com.tornyak.security;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.client.fluent.Response;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.junit.Test;
 
 import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLPeerUnverifiedException;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -38,7 +32,7 @@ public class SecureHttpClientTest {
         httpClient.execute(new HttpGet("https://expired.badssl.com/"));
     }
 
-    @Test(expected = SSLPeerUnverifiedException.class)
+    @Test
     public void wrongHostCertificate() throws Exception {
         httpClient.execute(new HttpGet("https://wrong.host.badssl.com/"));
     }
