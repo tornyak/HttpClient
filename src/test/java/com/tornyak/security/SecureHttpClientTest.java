@@ -5,11 +5,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.junit.Test;
 
 import javax.net.ssl.SSLHandshakeException;
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -17,7 +13,7 @@ public class SecureHttpClientTest {
 
     SecureHttpClient httpClient;
 
-    public SecureHttpClientTest() throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, KeyManagementException {
+    public SecureHttpClientTest() throws Exception {
         httpClient = new SecureHttpClient();
     }
 
@@ -32,7 +28,7 @@ public class SecureHttpClientTest {
         httpClient.execute(new HttpGet("https://expired.badssl.com/"));
     }
 
-    @Test
+    @Test(expected = SSLPeerUnverifiedException.class)
     public void wrongHostCertificate() throws Exception {
         httpClient.execute(new HttpGet("https://wrong.host.badssl.com/"));
     }
